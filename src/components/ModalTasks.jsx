@@ -86,10 +86,10 @@ const Fade = React.forwardRef(function Fade(props, ref) {
         setDrags([...drags, { 
           id: drags.length + 1,
           task: newTarea,
-          isDropped: false }
+          isDropped: false } 
         ])
 
-        handleClose()
+        handleClose() 
       }
       else{
         console.log('Tienes que escribir una Tarea')

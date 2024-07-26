@@ -1,23 +1,19 @@
-//Lo que hay que trabajar ahora es que podamos borrar tareas 
-// y tambien que cuando refresquemos la pagina las tareas queden donde estaban. SOLUCION: Una posible solucion seria que agreguemos
-// en la base de datos una nueva tabla llamada Droppables donde tenga como propiedades: id, task (si es que tiene), isDropped(bool) y hour
+// Queda modificar el css para que puedan haber muchas mas tareas a la vista 
+// y agregar un paso mas a lo de eliminar tarea
+
+
 
 import './App.css'
-import profPic from './assets/fotoJere.jpeg'
 import { DndContext } from '@dnd-kit/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext } from 'react'
 import ContainerDrops from './components/ContainerDrops'
 import ContainerDrags from './components/ContainerDrags'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import Cookies from 'universal-cookie'
 import SpringModal from './components/ModalTasks'
-import SpringModalHour from './components/ModalHours'
 import { onAuthStateChanged } from 'firebase/auth'
 import GoogleButton from 'react-google-button'
 
-
-const cookies = new Cookies()
 const provider = new GoogleAuthProvider();
 
 const firebaseConfig = {
@@ -31,12 +27,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const auth = await getAuth(app);
+const auth = getAuth(app);
+
 
 
 function App() {
 
-  const [service, setService] = useState('myDay')
   const [authUser, setAuthUser] = useState(null);
   const [onDrag, setOnDrag] = useState(false);
   const [draggables, setDraggables] = useState([{
@@ -217,7 +213,7 @@ function App() {
           }
         }).then( (response)=>response.json())
   
-        console.log(tasks)
+        
         //Aca tasks ya son las tareas.
   
         const tareasTransformadas = tasks.map((tarea, index)=>({
@@ -238,6 +234,8 @@ function App() {
 
         
         setDroppables(drops)
+        
+        console.log(user)
       } 
       else{
         console.log('No ha iniciado sesion')
@@ -372,6 +370,7 @@ function App() {
   }
 
   function handleDragStart(e){
+    console.log(e)
     setOnDrag(true);
   }
 
@@ -449,7 +448,7 @@ function App() {
 
 
 
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext onDragStart={(e)=>handleDragStart(e)} stateOnDrag={onDrag} onDragEnd={handleDragEnd}>
           <div className='routine'>
 
             <div className='first'>
@@ -466,25 +465,29 @@ function App() {
                 </div>
                 <div className='cont-activities'>
                   <div className='hoy'>Hoy</div>
-                  <ContainerDrops drops={droppables} />
+                  <ContainerDrops drops={droppables} auth={authUser} setDrags={setDraggables} setDrops={setDroppables}/>
 
                 </div>
               </div>
             </div>
-            {/* <div className='second'>
-              <SpringModalHour/>
-            </div> */}
+            
           </div>
 
           <div className='sect-tasks'>
             <div className="first">
-              <b>Mis tareas</b>
-              <div className='cont-tasks'>
-                <ContainerDrags drags={draggables}></ContainerDrags>
+              <div className='title-misTareas'> 
+                <b>Mis tareas</b>
               </div>
+              <div className='cont-tasks'  >
+              
+                <ContainerDrags drags={draggables} auth={authUser} setDrags={setDraggables} setDrops={setDroppables} ></ContainerDrags>
+               
+                
+              </div>
+              
             </div>
             <div className="second">
-              <SpringModal user={authUser} drags={draggables} setDrags={setDraggables}/>
+            <SpringModal user={authUser} drags={draggables} setDrags={setDraggables}/>
             </div>
           </div>
         </DndContext>
